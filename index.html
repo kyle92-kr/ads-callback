@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-vMRLI30ujSp2qznb9tCxNhrueBDQvBO0derc+BeQIpE='; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-eWbMGJZ/Rp61yR7EbXhWKtnofT9W0WA6xHh2rQgz73E='; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
 <title>위캐리 틱톡 연결</title>
 <style>
 body{margin:0;padding:32px 16px;font-family:system-ui,-apple-system,"Malgun Gothic","Apple SD Gothic Neo",sans-serif;background:#fff;color:#111;line-height:1.6}
@@ -45,15 +45,13 @@ p{margin:0 0 8px}
     if (!m) return { ok: false, reason: 'STATE_INVALID' };
     var port = Number(m[1]);
     if (!Number.isInteger(port) || port < 1024 || port > 65535) return { ok: false, reason: 'PORT_INVALID' };
+    // Only auth_code is forwarded; TikTok's separate `code` value is not used by the app.
     var authCode = only(params, 'auth_code');
-    var code = only(params, 'code');
-    if (authCode === undefined || code === undefined) return { ok: false, reason: 'CODE_INVALID' };
+    if (authCode === undefined) return { ok: false, reason: 'CODE_INVALID' };
     if (authCode !== null && !CODE_RE.test(authCode)) return { ok: false, reason: 'CODE_INVALID' };
-    if (code !== null && !CODE_RE.test(code)) return { ok: false, reason: 'CODE_INVALID' };
     var target = new URL('http://127.0.0.1/tiktok/callback');
     target.port = String(port);
     if (authCode !== null) target.searchParams.set('auth_code', authCode);
-    if (code !== null) target.searchParams.set('code', code);
     target.searchParams.set('state', state);
     if (target.protocol !== 'http:' || target.hostname !== '127.0.0.1' || target.port !== String(port) ||
         target.pathname !== '/tiktok/callback' || target.username || target.password || target.hash) {
